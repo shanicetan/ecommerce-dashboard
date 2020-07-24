@@ -1,0 +1,497 @@
+---
+title: "Ecommerce Leads"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: spacelab
+    vertical_layout: fill
+    source_code: embed
+    logo: "/Users/shanicetan/Desktop/Data/netsuite.png"
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(knitr)
+library(readxl)
+library(plotly)
+library(plyr)
+library(dplyr)
+library(tidyverse)
+library(DT)
+library(RColorBrewer)
+
+
+#Import ecommerce excel sheet
+ecommerce <- "/Users/shanicetan/Desktop/Data/singaporecommerce.xlsx" %>%  excel_sheets() %>% set_names() %>%  map(read_excel, path = "/Users/shanicetan/Desktop/Data/singaporecommerce.xlsx") 
+n <- length(ecommerce) 
+```
+
+Q3 {data-navmenu="2019"}
+===========================================
+
+```{r   , include=FALSE}
+#remove international merchants and top 3 players
+e1 <- ecommerce[[n]][,2:15, drop=FALSE]
+e1 <- as.data.frame(e1)
+colnames(e1)[1] <- "Merchant"
+e1 <- e1 %>%
+  filter(!location == 'international')
+e1 <- tail(e1,-3)
+``` 
+
+
+Column {.tabset .tabset-fade} 
+----------------------------------- 
+
+### Top Ecommerce Merchants  
+
+```{r }
+#Group Harvard dataframe by Merchant and their respective counts
+p1 <- e1 %>%
+         group_by(Merchant) %>%
+         summarise(count = traffic)
+
+p1 <- left_join(p1, e1, by = "Merchant") 
+
+#Rank in bars ascending order of counts
+p1$Merchant <- factor(p1$Merchant, levels = unique(p1$Merchant)[order(p1$count, decreasing = FALSE)]) 
+
+#Plot bar chart of Merchants based on popularity 
+plot_ly(p1, x = ~count, y = ~Merchant, color = ~Merchant, colors = "GnBu", alpha = 0.7, type = 'bar', text = ~category, hoverinfo = "text+x") %>% layout(yaxis = list(title = 'Merchant'), xaxis = list(title = "Site Traffic"))
+```
+
+### Datatable  
+
+```{r}
+e1dt = subset(e1, select = -c(ios,android,twitter,instagram,facebook,logodesktop)) 
+datatable(e1dt, rownames = FALSE)
+```
+
+### Pie chart of categories 
+
+```{r}
+pie1 <- e1 %>%
+    group_by(category) %>%
+    summarise(count = n()) %>%
+    plot_ly(labels = ~category,
+            values = ~count,
+            textposition = "inside",
+            textinfo = "percent+label",
+            insidetextorientation='horizontal',
+            marker = list(colors = c("#A9CCE3","#A3E4D7","#D7BDE2","E6E6FA"))) %>%
+    add_pie(hole = 0.5) %>%
+    layout(xaxis = list(zeroline = F,
+                        showline = F,
+                        showticklabels = F,
+                        showgrid = F),
+           yaxis = list(zeroline = F,
+                        showline = F,
+                        showticklabels=F,
+                        showgrid=F), showlegend=FALSE, annotations=list(text="Quarterly Top Categories","showarrow"=F))
+pie1
+```
+
+
+
+Q2 {data-navmenu="2019"}
+===========================================
+
+```{r , include=FALSE}
+#remove international merchants and top 3 players
+e2 <- ecommerce[[n-1]][,2:14, drop=FALSE]
+e2 <- as.data.frame(e2)
+colnames(e2)[1] <- "Merchant"
+e2 <- e2 %>%
+  filter(!location == 'international')
+e2 <- tail(e2,-3)
+``` 
+
+
+Column {.tabset .tabset-fade} 
+----------------------------------- 
+
+### Top Ecommerce Merchants 
+
+```{r }
+#Group Harvard dataframe by Merchant and their respective counts
+p1 <- e2 %>%
+         group_by(Merchant) %>%
+         summarise(count = traffic)
+
+p1 <- left_join(p1, e2, by = "Merchant") 
+
+#Rank in bars ascending order of counts
+p1$Merchant <- factor(p1$Merchant, levels = unique(p1$Merchant)[order(p1$count, decreasing = FALSE)]) 
+
+#Plot bar chart of Merchants based on popularity 
+plot_ly(p1, x = ~count, y = ~Merchant, color = ~Merchant, colors = "GnBu", alpha = 0.7, type = 'bar', text = ~category, hoverinfo = "text+x") %>% layout(yaxis = list(title = 'Merchant'), xaxis = list(title = "Site Traffic"))
+```
+
+### Datatable  
+
+```{r}
+e2dt = subset(e2, select = -c(ios,android,twitter,instagram,facebook,logodesktop)) 
+datatable(e2dt, rownames = FALSE)
+```
+
+
+### Pie chart of categories 
+
+```{r}
+pie2 <- e2 %>%
+    group_by(category) %>%
+    summarise(count = n()) %>%
+    plot_ly(labels = ~category,
+            values = ~count,
+            textposition = "inside",
+            textinfo = "percent+label",
+            insidetextorientation='horizontal',
+            marker = list(colors = c("#A9CCE3","#A3E4D7","#D7BDE2","E6E6FA"))) %>%
+    add_pie(hole = 0.5) %>%
+    layout(xaxis = list(zeroline = F,
+                        showline = F,
+                        showticklabels = F,
+                        showgrid = F),
+           yaxis = list(zeroline = F,
+                        showline = F,
+                        showticklabels=F,
+                        showgrid=F), showlegend=FALSE, annotations=list(text="Quarterly Top Categories","showarrow"=F))
+pie2
+```
+
+
+Q1 {data-navmenu="2019"}
+===========================================
+
+```{r , include=FALSE}
+#remove international merchants and top 3 players
+e3 <- ecommerce[[n-2]][,2:14, drop=FALSE]
+e3 <- as.data.frame(e3)
+colnames(e3)[1] <- "Merchant"
+e3 <- e3 %>%
+  filter(!location == 'international')
+e3 <- tail(e3,-3)
+``` 
+
+
+Column {.tabset .tabset-fade} 
+----------------------------------- 
+
+### Top Ecommerce Merchants  
+
+```{r }
+#Group Harvard dataframe by Merchant and their respective counts
+p1 <- e3 %>%
+         group_by(Merchant) %>%
+         summarise(count = traffic)
+
+p1 <- left_join(p1, e3, by = "Merchant") 
+
+#Rank in bars ascending order of counts
+p1$Merchant <- factor(p1$Merchant, levels = unique(p1$Merchant)[order(p1$count, decreasing = FALSE)]) 
+
+#Plot bar chart of Merchants based on popularity 
+plot_ly(p1, x = ~count, y = ~Merchant, color = ~Merchant, colors = "GnBu", alpha = 0.7, type = 'bar', text = ~category, hoverinfo = "text+x") %>% layout(yaxis = list(title = 'Merchant'), xaxis = list(title = "Site Traffic"))
+```
+
+### Datatable  
+
+```{r}
+e3dt = subset(e3, select = -c(`iOS rank`,`Android rank`,twitter,instagram,facebook,logodesktop)) 
+datatable(e3dt, rownames = FALSE)
+```
+
+
+### Pie chart of categories 
+
+```{r}
+pie3 <- e3 %>%
+    group_by(category) %>%
+    summarise(count = n()) %>%
+    plot_ly(labels = ~category,
+            values = ~count,
+            textposition = "inside",
+            textinfo = "percent+label",
+            insidetextorientation='horizontal',
+            marker = list(colors = c("#A9CCE3","#A3E4D7","#D7BDE2","E6E6FA"))) %>%
+    add_pie(hole = 0.5) %>%
+    layout(xaxis = list(zeroline = F,
+                        showline = F,
+                        showticklabels = F,
+                        showgrid = F),
+           yaxis = list(zeroline = F,
+                        showline = F,
+                        showticklabels=F,
+                        showgrid=F), showlegend=FALSE, annotations=list(text="Quarterly Top Categories","showarrow"=F))
+pie3
+```
+
+
+
+Q4 {data-navmenu="2018"}
+===========================================
+
+
+```{r, include=FALSE}
+#remove international merchants and top 3 players
+e4 <- ecommerce[[n-3]][,2:14, drop=FALSE]
+e4 <- as.data.frame(e4)
+colnames(e4)[1] <- "Merchant"
+e4 <- e4 %>%
+  filter(!location == 'international')
+e4 <- tail(e4,-3)
+``` 
+
+
+Column {.tabset .tabset-fade} 
+----------------------------------- 
+
+### Top Ecommerce Merchants  
+
+```{r }
+#Group Harvard dataframe by Merchant and their respective counts
+p1 <- e4 %>%
+         group_by(Merchant) %>%
+         summarise(count = traffic)
+
+p1 <- left_join(p1, e4, by = "Merchant") 
+
+#Rank in bars ascending order of counts
+p1$Merchant <- factor(p1$Merchant, levels = unique(p1$Merchant)[order(p1$count, decreasing = FALSE)]) 
+
+#Plot bar chart of Merchants based on popularity 
+plot_ly(p1, x = ~count, y = ~Merchant, color = ~Merchant, colors = "GnBu", alpha = 0.7, type = 'bar', text = ~category, hoverinfo = "text+x") %>% layout(yaxis = list(title = 'Merchant'), xaxis = list(title = "Site Traffic"))
+```
+
+### Datatable  
+
+```{r}
+e4dt = subset(e4, select = -c(`iOS rank`,`Android rank`,twitter,instagram,facebook,logodesktop)) 
+datatable(e4dt, rownames = FALSE)
+```
+
+
+### Pie chart of categories 
+
+```{r}
+pie4 <- e4 %>%
+    group_by(category) %>%
+    summarise(count = n()) %>%
+    plot_ly(labels = ~category,
+            values = ~count,
+            textposition = "inside",
+            textinfo = "percent+label",
+            insidetextorientation='horizontal',
+            marker = list(colors = c("#A9CCE3","#A3E4D7","#D7BDE2","E6E6FA"))) %>%
+    add_pie(hole = 0.5) %>%
+    layout(xaxis = list(zeroline = F,
+                        showline = F,
+                        showticklabels = F,
+                        showgrid = F),
+           yaxis = list(zeroline = F,
+                        showline = F,
+                        showticklabels=F,
+                        showgrid=F), showlegend=FALSE, annotations=list(text="Quarterly Top Categories","showarrow"=F))
+pie4
+```
+
+
+Q3 {data-navmenu="2018"}
+===========================================
+
+```{r, include=FALSE}
+#remove international merchants and top 3 players
+e5 <- ecommerce[[n-4]][,2:14, drop=FALSE]
+e5 <- as.data.frame(e5)
+colnames(e5)[1] <- "Merchant"
+e5 <- tail(e5,-3)
+``` 
+
+
+Column {.tabset .tabset-fade} 
+----------------------------------- 
+
+### Top Ecommerce Merchants  
+
+```{r}
+#Group Harvard dataframe by Merchant and their respective counts
+p1 <- e5 %>%
+         group_by(Merchant) %>%
+         summarise(count = traffic)
+
+p1 <- left_join(p1, e5, by = "Merchant") 
+
+#Rank in bars ascending order of counts
+p1$Merchant <- factor(p1$Merchant, levels = unique(p1$Merchant)[order(p1$count, decreasing = FALSE)]) 
+
+#Plot bar chart of Merchants based on popularity 
+plot_ly(p1, x = ~count, y = ~Merchant, color = ~Merchant, colors = "GnBu", alpha = 0.7) %>% layout(yaxis = list(title = 'Merchant'), xaxis = list(title = "Site Traffic"))
+```
+
+### Datatable  
+
+```{r}
+e5dt = subset(e5, select = -c(`iOS rank`,`Android rank`,Twitter,Instagram,Facebook,Source...5,Source...9,Source...11,Source...13)) 
+datatable(e5dt, rownames = FALSE)
+```
+
+
+Q2 {data-navmenu="2018"}
+===========================================
+
+```{r , include=FALSE}
+#remove international merchants and top 3 players
+e6 <- ecommerce[[n-5]][,2:14, drop=FALSE]
+e6 <- as.data.frame(e6)
+colnames(e6)[1] <- "Merchant"
+e6 <- tail(e6,-3)
+``` 
+
+
+Column {.tabset .tabset-fade} 
+----------------------------------- 
+
+### Top Ecommerce Merchants  
+
+```{r }
+#Group Harvard dataframe by Merchant and their respective counts
+p1 <- e6 %>%
+         group_by(Merchant) %>%
+         summarise(count = traffic)
+
+p1 <- left_join(p1, e6, by = "Merchant") 
+
+#Rank in bars ascending order of counts
+p1$Merchant <- factor(p1$Merchant, levels = unique(p1$Merchant)[order(p1$count, decreasing = FALSE)]) 
+
+#Plot bar chart of Merchants based on popularity 
+plot_ly(p1, x = ~count, y = ~Merchant, color = ~Merchant, colors = "GnBu", alpha = 0.7) %>% layout(yaxis = list(title = 'Merchant'), xaxis = list(title = "Site Traffic"))
+```
+
+### Datatable  
+
+```{r}
+e6dt = subset(e6, select = -c(`iOS rank`,`Android rank`,Twitter,Instagram,Facebook,Source...5,Source...9,Source...11,Source...13)) 
+datatable(e6dt, rownames = FALSE)
+```
+
+
+Q1 {data-navmenu="2018"}
+===========================================
+
+```{r , include=FALSE}
+#remove international merchants and top 3 players
+e7 <- ecommerce[[n-6]][,2:14, drop=FALSE]
+e7 <- as.data.frame(e7)
+colnames(e7)[1] <- "Merchant"
+e7 <- tail(e7,-3)
+``` 
+
+
+Column {.tabset .tabset-fade} 
+----------------------------------- 
+
+### Top Ecommerce Merchants  
+
+```{r}
+#Group Harvard dataframe by Merchant and their respective counts
+p1 <- e7 %>%
+         group_by(Merchant) %>%
+         summarise(count = traffic)
+
+p1 <- left_join(p1, e7, by = "Merchant") 
+
+#Rank in bars ascending order of counts
+p1$Merchant <- factor(p1$Merchant, levels = unique(p1$Merchant)[order(p1$count, decreasing = FALSE)]) 
+
+#Plot bar chart of Merchants based on popularity 
+plot_ly(p1, x = ~count, y = ~Merchant, color = ~Merchant, colors = "GnBu", alpha = 0.7) %>% layout(yaxis = list(title = 'Merchant'), xaxis = list(title = "Site Traffic"))
+```
+
+### Datatable  
+
+```{r}
+e7dt = subset(e7, select = -c(`iOS rank`,`Android rank`,Twitter,Instagram,Facebook,Source...5,Source...9,Source...11,Source...13)) 
+datatable(e7dt, rownames = FALSE)
+```
+
+Q4 {data-navmenu="2017"}
+===========================================
+
+```{r , include=FALSE}
+#remove international merchants and top 3 players
+e8 <- ecommerce[[n-7]][,2:14, drop=FALSE]
+e8 <- as.data.frame(e8)
+colnames(e8)[1] <- "Merchant"
+e8 <- tail(e8,-3)
+``` 
+
+
+Column {.tabset .tabset-fade} 
+----------------------------------- 
+
+### Top Ecommerce Merchants  
+
+```{r}
+#Group Harvard dataframe by Merchant and their respective counts
+p1 <- e8 %>%
+         group_by(Merchant) %>%
+         summarise(count = traffic)
+
+p1 <- left_join(p1, e8, by = "Merchant") 
+
+#Rank in bars ascending order of counts
+p1$Merchant <- factor(p1$Merchant, levels = unique(p1$Merchant)[order(p1$count, decreasing = FALSE)]) 
+
+#Plot bar chart of Merchants based on popularity 
+plot_ly(p1, x = ~count, y = ~Merchant, color = ~Merchant, colors = "GnBu", alpha = 0.7) %>% layout(yaxis = list(title = 'Merchant'), xaxis = list(title = "Site Traffic"))
+```
+
+### Datatable  
+
+```{r}
+e8dt = subset(e8, select = -c(`iOS rank`,`Android rank`,Twitter,Instagram,Facebook,Source...5,Source...9,Source...11,Source...13)) 
+datatable(e8dt, rownames = FALSE)
+```
+
+Q3 {data-navmenu="2017"}
+===========================================
+
+```{r , include=FALSE}
+#remove international merchants and top 3 players
+e9 <- ecommerce[[n-8]][,2:14, drop=FALSE]
+e9 <- as.data.frame(e9)
+colnames(e9)[1] <- "Merchant"
+e9 <- tail(e9,-3)
+``` 
+
+
+Column {.tabset .tabset-fade} 
+----------------------------------- 
+
+### Top Ecommerce Merchants  
+
+```{r}
+#Group Harvard dataframe by Merchant and their respective counts
+p1 <- e9 %>%
+         group_by(Merchant) %>%
+         summarise(count = traffic)
+
+p1 <- left_join(p1, e9, by = "Merchant") 
+
+#Rank in bars ascending order of counts
+p1$Merchant <- factor(p1$Merchant, levels = unique(p1$Merchant)[order(p1$count, decreasing = FALSE)]) 
+
+#Plot bar chart of Merchants based on popularity 
+plot_ly(p1, x = ~count, y = ~Merchant, color = ~Merchant, colors = "GnBu", alpha = 0.7) %>% layout(yaxis = list(title = 'Merchant'), xaxis = list(title = "Site Traffic"))
+```
+
+### Datatable  
+
+```{r}
+e9dt = subset(e9, select = -c(Twitter,Instagram,Facebook,Source...5,Source...9,Source...11,Source...13)) 
+datatable(e9dt, rownames = FALSE)
+```
+
+
+
+
